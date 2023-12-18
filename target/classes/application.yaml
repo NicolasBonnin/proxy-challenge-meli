@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: meliserver
+
+zuul:
+  routes:
+    categories:
+      path: /categories/**
+      url: https://api.mercadolibre.com/categories/
+    sell:
+      path: /sell/**
+      url: https://api.mercadolibre.com/sell/
+    actuator:
+      path: /actuator/**
+      url: forward:/actuator
+    default:
+      path: /**
+      url: https://api.mercadolibre.com/**/
+  ratelimit:
+    enabled: true
+    repository: REDIS
+    policy-list:
+      categories:
+        - limit: 10000
+          refresh-interval: 60
+          type:
+            - url
+      sell:
+        - limit: 10
+          refresh-interval: 60
+          type:
+            - origin
+            - url
+      default:
+        - limit: 1000
+          refresh-interval: 60
+          type:
+            - origin
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+  metrics:
+    export:
+      prometheus:
+        enabled: true
